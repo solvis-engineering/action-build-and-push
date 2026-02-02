@@ -1,6 +1,6 @@
-FROM gcr.io/kaniko-project/executor:debug AS kaniko
+FROM gcr.io/kaniko-project/executor:v1.23.2-debug AS kaniko
 
-FROM alpine:3.19
+FROM alpine:3.21
 
 # Install dependencies required for our logic (git for tagging, bash for script, jq/curl for potential helpers)
 RUN apk add --no-cache bash git jq curl ca-certificates
