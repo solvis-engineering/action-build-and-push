@@ -1,0 +1,51 @@
+name: 'Docker Build and Push (Kaniko)'
+description: 'Builds and pushes a Docker container to AWS ECR or GHCR using Kaniko (Daemonless).'
+inputs:
+  registry_type:
+    description: 'Registry type: "ecr" or "github"'
+    required: true
+  image_name:
+    description: 'Name of the image (repository name). For ECR, can be full URI or just repo name if aws_account_id is provided.'
+    required: true
+  dockerfile:
+    description: 'Path to Dockerfile'
+    required: false
+    default: './Dockerfile'
+  context:
+    description: 'Build context'
+    required: false
+    default: '.'
+  build_args:
+    description: 'List of build-time variables (one per line, e.g. FOO=bar)'
+    required: false
+  tag:
+    description: 'Specific tag for the image. If empty, uses the short commit hash.'
+    required: false
+  aws_region:
+    description: 'AWS Region (required for ECR)'
+    required: false
+  aws_account_id:
+    description: 'AWS Account ID (optional, helps construct ECR URI if image_name is just repo name)'
+    required: false
+  aws_access_key_id:
+    description: 'AWS Access Key ID (optional)'
+    required: false
+  aws_secret_access_key:
+    description: 'AWS Secret Access Key (optional)'
+    required: false
+  registry_username:
+    description: 'Username for GitHub Container Registry'
+    required: false
+  registry_password:
+    description: 'Password/Token for GitHub Container Registry'
+    required: false
+
+outputs:
+  image_uri:
+    description: 'The full URI of the pushed image'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - entrypoint.sh

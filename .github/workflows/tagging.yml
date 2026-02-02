@@ -1,0 +1,26 @@
+name: Auto Tagging
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Configuration
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for analyzing commit history
+
+      - name: Bump version and push tag
+        id: tag
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
