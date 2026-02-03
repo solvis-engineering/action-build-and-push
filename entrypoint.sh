@@ -163,6 +163,9 @@ echo "Running Kaniko..."
   --cleanup \
   --snapshot-mode=redo \
   --ignore-path=/product_uuid \
+  --ignore-path=/etc/ssl/certs \
+  --ignore-path=/usr/share/ca-certificates \
+  --ignore-path=/var/lib/ca-certificates \
   $BUILD_ARGS_FLAGS
 
 echo "Build and push completed successfully!"
