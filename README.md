@@ -10,6 +10,7 @@ It runs entirely inside a container and does not require the Docker daemon or ex
 - **Self-Contained**: No dependencies on `docker/login-action` or `configure-aws-credentials`. Authentication is handled internal to the action.
 - **Multi-Registry**: Support for ECR and GHCR.
 - **Smart Tagging**: Defaults to the short commit hash.
+- **Optimized Images**: Uses Kaniko's `--cleanup` flag to produce smaller images.
 
 ## Usage
 

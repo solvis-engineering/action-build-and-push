@@ -160,6 +160,7 @@ echo "Running Kaniko..."
   --context "$CONTEXT" \
   --dockerfile "$DOCKERFILE" \
   --destination "$DESTINATION" \
+  --cleanup \
   $BUILD_ARGS_FLAGS
 
 echo "Build and push completed successfully!"
