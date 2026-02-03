@@ -22,6 +22,7 @@ steps:
   - uses: actions/checkout@v4
   
   - name: Build and Push to ECR
+    id: build_push
     uses: ./path-to-action # or owner/repo@tag
     with:
       registry_type: 'ecr'
@@ -31,6 +32,11 @@ steps:
       image_name: 'my-app-repo' # OR full URI: 12345.dkr.ecr.us-east-1.amazonaws.com/my-app-repo
       # Optional: Provide account ID to help construct URI if image_name is just repo name
       aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+
+  - name: Use the output
+    run: |
+      echo "Repository URI: ${{ steps.build_push.outputs.repository_uri }}"
+      echo "Image URI: ${{ steps.build_push.outputs.image_uri }}"
 ```
 
 ### 2. Push to GitHub Container Registry (GHCR)
@@ -84,3 +90,10 @@ steps:
 | `aws_secret_access_key` | AWS Secret Access Key (ECR) | No | |
 | `registry_username` | Username (GHCR) | No | |
 | `registry_password` | Token/Password (GHCR) | No | |
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `repository_uri` | The full URI of the repository (e.g., `ghcr.io/my-org/my-app` or `12345.dkr.ecr.us-east-1.amazonaws.com/my-app`). |
+| `image_uri` | The full URI of the pushed image, including the tag (e.g., `ghcr.io/my-org/my-app:v1.0.0`). |

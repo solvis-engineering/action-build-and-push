@@ -33,7 +33,7 @@ if [ -z "$TAG" ]; then
   echo "No tag provided. Attempting to use short commit hash..."
   # Mark directory as safe for git if needed (often needed in containerized actions running on mounted volumes)
   git config --global --add safe.directory "*"
-  
+
   if [ -d ".git" ] || git rev-parse --git-dir > /dev/null 2>&1; then
     TAG=$(git rev-parse --short HEAD)
     echo "Using tag: $TAG"
@@ -50,15 +50,15 @@ mkdir -p /kaniko/.docker
 
 if [ "$REGISTRY_TYPE" == "ecr" ]; then
   echo "Configuring AWS ECR credentials..."
-  
+
   if [ -z "$AWS_REGION" ]; then
     echo "Error: aws_region is required for ECR"
     exit 1
   fi
-  
+
   # Configure AWS Credentials for Kaniko (ECR helper)
   # Kaniko looks for standard AWS env vars or ~/.aws/credentials
-  
+
   if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
     echo "Using provided AWS Access Keys."
     export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
@@ -71,27 +71,27 @@ if [ "$REGISTRY_TYPE" == "ecr" ]; then
     # If OIDC is used, AWS_WEB_IDENTITY_TOKEN_FILE etc should be set by the workflow before calling this,
     # OR passed in via env.
   fi
-  
+
   # Determine Account ID for full URI construction
-  # We might need it if the user only gave repo name. 
-  # Actually, usually users provide full repo URI or just name? 
+  # We might need it if the user only gave repo name.
+  # Actually, usually users provide full repo URI or just name?
   # Implementation plan said: "Login to AWS ECR". Kaniko does this automatically if configured.
   # But we need the Destination URI.
   # If user provided just "my-app", we need {account}.dkr.ecr.{region}.amazonaws.com/my-app
-  
+
   # Attempt to get account ID if not provided in image name
   if [[ "$IMAGE_NAME" != *".dkr.ecr."* ]]; then
      echo "Constructing ECR URI..."
-     # Try to get account ID. With keys/role, we can try `aws sts get-caller-identity`? 
+     # Try to get account ID. With keys/role, we can try `aws sts get-caller-identity`?
      # But we don't have aws cli installed to keep image small.
-     # We can try to use inputs or require full URI? 
-     # Let's assume user might not provide it. 
+     # We can try to use inputs or require full URI?
+     # Let's assume user might not provide it.
      # WAIT: We can use `aws_account_id` input? Not in our list.
      # Let's Rely on `aws_access_key_id` to imply we might not know account id easily without API call.
      # Simpler approach: Require user to pass full URI in `image_name` OR add `aws_account_id` input?
      # Or, since we have `curl`, we could try to query metadata if on EC2, but this is GitHub Actions.
-     
-     # Let's add a check: If image name doesn't look like a URL, warn or error? 
+
+     # Let's add a check: If image name doesn't look like a URL, warn or error?
      # Actually, let's keep it simple for v1: ECR Image Name SHOULD probably be the full URI or we add an input.
      # The PLAN said "image_name: Name of the image".
      # Let's assume we need to handle "repo-name" -> "1234.dkr.ecr.us-east-1.amazonaws.com/repo-name"
@@ -105,7 +105,7 @@ if [ "$REGISTRY_TYPE" == "ecr" ]; then
         DESTINATION="${INPUT_AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${TAG}"
      elif [[ "$IMAGE_NAME" == *".dkr.ecr."* ]]; then
         DESTINATION="${IMAGE_NAME}:${TAG}"
-     else 
+     else
         echo "Error: For ECR, either provide full URI in image_name or provide aws_account_id input."
         exit 1
      fi
@@ -119,7 +119,7 @@ elif [ "$REGISTRY_TYPE" == "github" ]; then
     echo "Error: registry_username and registry_password are required for GHCR"
     exit 1
   fi
-  
+
   # Generate auth config for Kaniko
   AUTH=$(echo -n "${REGISTRY_USERNAME}:${REGISTRY_PASSWORD}" | base64)
   cat > /kaniko/.docker/config.json <<EOF
@@ -163,4 +163,6 @@ echo "Running Kaniko..."
   $BUILD_ARGS_FLAGS
 
 echo "Build and push completed successfully!"
+REPOSITORY_URI="${DESTINATION%:*}"
+echo "repository_uri=${REPOSITORY_URI}" >> $GITHUB_OUTPUT
 echo "image_uri=$DESTINATION" >> $GITHUB_OUTPUT
