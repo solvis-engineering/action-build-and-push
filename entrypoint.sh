@@ -161,6 +161,8 @@ echo "Running Kaniko..."
   --dockerfile "$DOCKERFILE" \
   --destination "$DESTINATION" \
   --cleanup \
+  --snapshot-mode=redo \
+  --ignore-path=/product_uuid \
   $BUILD_ARGS_FLAGS
 
 echo "Build and push completed successfully!"
